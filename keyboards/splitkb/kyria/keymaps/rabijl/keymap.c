@@ -15,183 +15,169 @@
  */
 #include QMK_KEYBOARD_H
 
+// do not fallback to previous layer
+#undef _______
+#define _______ KC_NO
+
 enum layers {
-    _QWERTY = 0,
-    _DVORAK,
-    _COLEMAK_DH,
-    _NAV,
-    _SYM,
+    _BASE = 0,
+    _MEDIA,
+    _NAVIGATION,
+    _MOUSE,
+    _NUMPAD,
+    _SYMBOL,
     _FUNCTION,
-    _ADJUST,
+    _BUTTON,
 };
 
-
-// Aliases for readability
-#define QWERTY   DF(_QWERTY)
-#define COLEMAK  DF(_COLEMAK_DH)
-#define DVORAK   DF(_DVORAK)
-
-#define SYM      MO(_SYM)
-#define NAV      MO(_NAV)
-#define FKEYS    MO(_FUNCTION)
-#define ADJUST   MO(_ADJUST)
+#define MEDIA MO(_MEDIA)
+#define NAV MO(_NAVIGATION)
+#define MOUSE MO(_MOUSE)
+#define NUM MO(_NUMPAD)
+#define SYM MO(_SYMBOL)
+#define FUN MO(_FUNCTION)
+#define BUT MO(_BUTTON)
 
 #define CTL_ESC  MT(MOD_LCTL, KC_ESC)
 #define CTL_QUOT MT(MOD_RCTL, KC_QUOTE)
-#define CTL_MINS MT(MOD_RCTL, KC_MINUS)
-#define ALT_ENT  MT(MOD_LALT, KC_ENT)
 
-// Note: LAlt/Enter (ALT_ENT) is not the same thing as the keyboard shortcut Alt+Enter.
-// The notation `mod/tap` denotes a key that activates the modifier `mod` when held down, and
-// produces the key `tap` when tapped (i.e. pressed and released).
+#define GUI_A MT(MOD_LGUI, KC_A)
+#define ALT_S MT(MOD_LALT, KC_S)
+#define CTL_D MT(MOD_LCTL, KC_D)
+#define SFT_F MT(MOD_LSFT, KC_F)
+#define SFT_J MT(MOD_RSFT, KC_J)
+#define CTL_K MT(MOD_RCTL, KC_K)
+#define ALT_L MT(MOD_RALT, KC_L)
+#define GUI_SCLN MT(MOD_RGUI, KC_SCLN)
+#define BUT_Z LT(_BUTTON, KC_Z)
+#define BUT_SLSH LT(_BUTTON, KC_SLSH)
+
+// Click the top thumb buttons by smashing your entire thumb on two
+// keys.
+const uint16_t PROGMEM nav_combo[]   = {KC_SPC, NAV, COMBO_END};
+const uint16_t PROGMEM mouse_combo[] = {KC_TAB, MOUSE, COMBO_END};
+const uint16_t PROGMEM sym_combo[]   = {KC_ENT, SYM, COMBO_END};
+const uint16_t PROGMEM num_combo[]   = {KC_BSPC, NUM, COMBO_END};
+
+combo_t key_combos[] = {
+    COMBO(nav_combo, NAV),
+    COMBO(mouse_combo, MOUSE),
+    COMBO(sym_combo, SYM),
+    COMBO(num_combo, NUM),
+};
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-/*
- * Base Layer: QWERTY
+/* Layer: QWERTY
  *
  * ,-------------------------------------------.                              ,-------------------------------------------.
- * |  Tab   |   Q  |   W  |   E  |   R  |   T  |                              |   Y  |   U  |   I  |   O  |   P  |  Bksp  |
+ * |  ~     |   Q  |   W  |   E  |   R  |   T  |                              |   Y  |   U  |   I  |   O  |   P  |  Bksp  |
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
  * |Ctrl/Esc|   A  |   S  |   D  |   F  |   G  |                              |   H  |   J  |   K  |   L  | ;  : |Ctrl/' "|
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * | LShift |   Z  |   X  |   C  |   V  |   B  | [ {  |CapsLk|  |F-keys|  ] } |   N  |   M  | ,  < | . >  | /  ? | RShift |
+ * | LShift |   Z  |   X  |   C  |   V  |   B  | NAV  |MOUSE |  |SYM   |  NUM |   N  |   M  | ,  < | . >  | /  ? | RShift |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |Adjust| LGUI | LAlt/| Space| Nav  |  | Sym  | Space| AltGr| RGUI | Menu |
- *                        |      |      | Enter|      |      |  |      |      |      |      |      |
+ *                        |NOP   | MEDIA| ESC  | Space| TAB  |  | ENTER| BACK-| DEL  | FUNC | APP  |
+ *                        |      |      |      |      |      |  |      | SPACE|      |      |      |
  *                        `----------------------------------'  `----------------------------------'
  */
-    [_QWERTY] = LAYOUT(
-     KC_TAB  , KC_Q ,  KC_W   ,  KC_E  ,   KC_R ,   KC_T ,                                        KC_Y,   KC_U ,  KC_I ,   KC_O ,  KC_P , KC_BSPC,
-     CTL_ESC , KC_A ,  KC_S   ,  KC_D  ,   KC_F ,   KC_G ,                                        KC_H,   KC_J ,  KC_K ,   KC_L ,KC_SCLN,CTL_QUOT,
-     KC_LSFT , KC_Z ,  KC_X   ,  KC_C  ,   KC_V ,   KC_B , KC_LBRC,KC_CAPS,     FKEYS  , KC_RBRC, KC_N,   KC_M ,KC_COMM, KC_DOT ,KC_SLSH, KC_RSFT,
-                                ADJUST , KC_LGUI, ALT_ENT, KC_SPC , NAV   ,     SYM    , KC_SPC ,KC_RALT, KC_RGUI, KC_APP
+    [_BASE] = LAYOUT(
+        KC_GRV  , KC_Q ,  KC_W   ,  KC_E  ,   KC_R ,   KC_T ,                                        KC_Y,   KC_U ,  KC_I ,   KC_O ,  KC_P  ,  KC_BSPC,
+        CTL_ESC , GUI_A,  ALT_S  ,  CTL_D ,  SFT_F ,   KC_G ,                                        KC_H,   SFT_J, CTL_K ,  ALT_L ,GUI_SCLN, CTL_QUOT,
+        KC_LSFT , BUT_Z,  KC_X   ,  KC_C  ,   KC_V ,   KC_B ,  NAV   ,  MOUSE ,    SYM   ,  NUM  ,   KC_N,   KC_M ,KC_COMM, KC_DOT ,BUT_SLSH,  KC_RSFT,
+                                   _______,  MEDIA , KC_ESC , KC_SPC , KC_TAB ,    KC_ENT,KC_BSPC, KC_DEL,   FUN  , KC_APP
     ),
 
 /*
- * Base Layer: Dvorak
- *
- * ,-------------------------------------------.                              ,-------------------------------------------.
- * |  Tab   | ' "  | , <  | . >  |   P  |   Y  |                              |   F  |   G  |   C  |   R  |   L  |  Bksp  |
- * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
- * |Ctrl/Esc|   A  |   O  |   E  |   U  |   I  |                              |   D  |   H  |   T  |   N  |   S  |Ctrl/- _|
- * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * | LShift | ; :  |   Q  |   J  |   K  |   X  | [ {  |CapsLk|  |F-keys|  ] } |   B  |   M  |   W  |   V  |   Z  | RShift |
- * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |Adjust| LGUI | LAlt/| Space| Nav  |  | Sym  | Space| AltGr| RGUI | Menu |
- *                        |      |      | Enter|      |      |  |      |      |      |      |      |
- *                        `----------------------------------'  `----------------------------------'
+ * Layer: MEDIA
+ * Legend:
+ * - UG: Under Glow
+ * - KC_M*: Key Code Media
+ * - KC_VOL*: Key Code VOLume
  */
-    [_DVORAK] = LAYOUT(
-     KC_TAB  ,KC_QUOTE,KC_COMM,  KC_DOT,   KC_P ,   KC_Y ,                                        KC_F,   KC_G ,  KC_C ,   KC_R ,  KC_L , KC_BSPC,
-     CTL_ESC , KC_A ,  KC_O   ,  KC_E  ,   KC_U ,   KC_I ,                                        KC_D,   KC_H ,  KC_T ,   KC_N ,  KC_S , CTL_MINS,
-     KC_LSFT ,KC_SCLN, KC_Q   ,  KC_J  ,   KC_K ,   KC_X , KC_LBRC,KC_CAPS,     FKEYS  , KC_RBRC, KC_B,   KC_M ,  KC_W ,   KC_V ,  KC_Z , KC_RSFT,
-                                 ADJUST, KC_LGUI, ALT_ENT, KC_SPC , NAV   ,     SYM    , KC_SPC ,KC_RALT, KC_RGUI, KC_APP
+    [_MEDIA] = LAYOUT(
+        UG_SPDU , UG_VALU, UG_SATU, UG_HUEU, UG_NEXT, UG_TOGG,                                             UG_TOGG, UG_NEXT, UG_HUEU, UG_SATU, UG_VALU, UG_SPDU,
+        _______ , KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, _______,                                             _______, KC_MPRV, KC_VOLD, KC_VOLU, KC_MNXT, _______, 
+        UG_SPDD , UG_VALD, UG_SATD, UG_HUED, UG_PREV, _______, _______, _______,         _______, _______, _______, UG_PREV, UG_HUED, UG_SATD, UG_VALD, UG_SPDD, 
+                                    _______, _______, _______, _______, _______,         KC_MSTP, KC_MPLY, KC_MUTE, _______, _______
+    ),
+
+
+/*
+ * Layer: Navigation
+ * Legend:
+ * - LCS: Left Control Shift
+ * - LCTL: Left ConTroL
+ */
+    [_NAVIGATION] = LAYOUT(
+        _______, _______, _______, _______, _______, _______,                                            LCS(KC_Z),LCTL(KC_V),LCTL(KC_C),LCTL(KC_X),LCTL(KC_Z), _______,
+        _______, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, _______,                                             KC_CAPS , KC_LEFT  , KC_DOWN  ,  KC_UP   , KC_RGHT  , _______,
+        _______, _______, _______, _______, _______, _______, _______, _______,         _______, _______, KC_INS  , KC_HOME  , KC_PGDN  , KC_PGUP  , KC_END   , _______,
+                                   _______, _______, _______, _______, _______,         KC_ENT , KC_BSPC, KC_DEL  , _______  , _______
     ),
 
 /*
- * Base Layer: Colemak DH
- *
- * ,-------------------------------------------.                              ,-------------------------------------------.
- * |  Tab   |   Q  |   W  |   F  |   P  |   B  |                              |   J  |   L  |   U  |   Y  | ;  : |  Bksp  |
- * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
- * |Ctrl/Esc|   A  |   R  |   S  |   T  |   G  |                              |   M  |   N  |   E  |   I  |   O  |Ctrl/' "|
- * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * | LShift |   Z  |   X  |   C  |   D  |   V  | [ {  |CapsLk|  |F-keys|  ] } |   K  |   H  | ,  < | . >  | /  ? | RShift |
- * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |Adjust| LGUI | LAlt/| Space| Nav  |  | Sym  | Space| AltGr| RGUI | Menu |
- *                        |      |      | Enter|      |      |  |      |      |      |      |      |
- *                        `----------------------------------'  `----------------------------------'
+ * Layer: MOUSE
+ * Legend:
+ * - LCS: Left Control Shift
+ * - LCTL: Left ConTroL
+ * - MS: MouSe
  */
-    [_COLEMAK_DH] = LAYOUT(
-     KC_TAB  , KC_Q ,  KC_W   ,  KC_F  ,   KC_P ,   KC_B ,                                        KC_J,   KC_L ,  KC_U ,   KC_Y ,KC_SCLN, KC_BSPC,
-     CTL_ESC , KC_A ,  KC_R   ,  KC_S  ,   KC_T ,   KC_G ,                                        KC_M,   KC_N ,  KC_E ,   KC_I ,  KC_O , CTL_QUOT,
-     KC_LSFT , KC_Z ,  KC_X   ,  KC_C  ,   KC_D ,   KC_V , KC_LBRC,KC_CAPS,     FKEYS  , KC_RBRC, KC_K,   KC_H ,KC_COMM, KC_DOT ,KC_SLSH, KC_RSFT,
-                                 ADJUST, KC_LGUI, ALT_ENT, KC_SPC , NAV   ,     SYM    , KC_SPC ,KC_RALT, KC_RGUI, KC_APP
+    [_MOUSE] = LAYOUT(
+        _______, _______, _______, _______, _______, _______,                                            LCS(KC_Z),LCTL(KC_V),LCTL(KC_C),LCTL(KC_X),LCTL(KC_Z), _______,
+        _______, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, _______,                                             KC_CAPS , MS_LEFT  , MS_DOWN  ,  MS_UP   , MS_RGHT  , _______,
+        _______, _______, _______, _______, _______, _______, _______, _______,         _______, _______, KC_INS  , MS_WHLL  , MS_WHLD  , MS_WHLU  , MS_WHLR  , _______,
+                                   _______, _______, _______, _______, _______,         MS_BTN2, MS_BTN1, MS_BTN3 , _______  , _______ 
+    ),
+
+
+/*
+ * Layer: NUMPAD
+ * Legend:
+ * - BRC: BRaCket
+ * - COLN: COLoN
+ * - GRV: GRaVe
+ * - BSLS: Back SLaSh
+ */
+    [_NUMPAD] = LAYOUT(
+        _______, KC_LBRC,  KC_7  ,  KC_8  ,  KC_9  , KC_RBRC,                                             _______, _______, _______, _______, _______, _______,
+        _______, KC_COLN,  KC_4  ,  KC_5  ,  KC_6  , KC_EQL ,                                             _______, KC_RSFT, KC_RCTL, KC_LALT, KC_RGUI, _______,
+        _______, KC_GRV ,  KC_1  ,  KC_2  ,  KC_3  , KC_BSLS, _______, _______,         _______, _______, _______, _______, _______, _______, _______, _______,
+                                   _______, _______, KC_DOT ,  KC_0  , KC_MINS,         _______, _______, _______, _______, _______
     ),
 
 /*
- * Nav Layer: Media, navigation
- *
- * ,-------------------------------------------.                              ,-------------------------------------------.
- * |        |      |      |      |      |      |                              | PgUp | Home |   ↑  | End  | VolUp| Delete |
- * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
- * |        |  GUI |  Alt | Ctrl | Shift|      |                              | PgDn |  ←   |   ↓  |   →  | VolDn| Insert |
- * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |        |      |      |      |      |      |      |ScLck |  |      |      | Pause|M Prev|M Play|M Next|VolMut| PrtSc  |
- * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |      |      |      |      |      |  |      |      |      |      |      |
- *                        |      |      |      |      |      |  |      |      |      |      |      |
- *                        `----------------------------------'  `----------------------------------'
+ * Layer: SUMBOL
+ * Legend:
+ * - CBR: Curly BRacket
+ * - PRN: PaReNthesis
+ * - UNDS: UNDerScore
  */
-    [_NAV] = LAYOUT(
-      _______, _______, _______, _______, _______, _______,                                     KC_PGUP, KC_HOME, KC_UP,   KC_END,  KC_VOLU, KC_DEL,
-      _______, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, _______,                                     KC_PGDN, KC_LEFT, KC_DOWN, KC_RGHT, KC_VOLD, KC_INS,
-      _______, _______, _______, _______, _______, _______, _______, KC_SCRL, _______, _______,KC_PAUSE, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_PSCR,
-                                 _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
+    [_SYMBOL] = LAYOUT(
+        _______, KC_LCBR, KC_AMPR, KC_ASTR, KC_LPRN, KC_RCBR,                                             _______, _______, _______, _______, _______, _______,
+        _______, KC_SCLN, KC_DLR , KC_PERC, KC_CIRC, KC_PLUS,                                             _______, KC_RSFT, KC_RCTL, KC_LALT, KC_RGUI, _______,
+        _______, KC_TILD, KC_EXLM,  KC_AT , KC_HASH, KC_PIPE, _______, _______,         _______, _______, _______, _______, _______, _______, _______, _______,
+                                   _______, _______, KC_LPRN, KC_RPRN, KC_UNDS,         _______, _______, _______, _______, _______
     ),
 
-/*
- * Sym Layer: Numbers and symbols
- *
- * ,-------------------------------------------.                              ,-------------------------------------------.
- * |    `   |  1   |  2   |  3   |  4   |  5   |                              |   6  |  7   |  8   |  9   |  0   |   =    |
- * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
- * |    ~   |  !   |  @   |  #   |  $   |  %   |                              |   ^  |  &   |  *   |  (   |  )   |   +    |
- * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |    |   |   \  |  :   |  ;   |  -   |  [   |  {   |      |  |      |   }  |   ]  |  _   |  ,   |  .   |  /   |   ?    |
- * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |      |      |      |      |      |  |      |      |      |      |      |
- *                        |      |      |      |      |      |  |      |      |      |      |      |
- *                        `----------------------------------'  `----------------------------------'
- */
-    [_SYM] = LAYOUT(
-      KC_GRV ,   KC_1 ,   KC_2 ,   KC_3 ,   KC_4 ,   KC_5 ,                                       KC_6 ,   KC_7 ,   KC_8 ,   KC_9 ,   KC_0 , KC_EQL ,
-     KC_TILD , KC_EXLM,  KC_AT , KC_HASH,  KC_DLR, KC_PERC,                                     KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_PLUS,
-     KC_PIPE , KC_BSLS, KC_COLN, KC_SCLN, KC_MINS, KC_LBRC, KC_LCBR, _______, _______, KC_RCBR, KC_RBRC, KC_UNDS, KC_COMM,  KC_DOT, KC_SLSH, KC_QUES,
-                                 _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
-    ),
-
-/*
- * Function Layer: Function keys
- *
- * ,-------------------------------------------.                              ,-------------------------------------------.
- * |        |  F9  | F10  | F11  | F12  |      |                              |      |      |      |      |      |        |
- * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
- * |        |  F5  |  F6  |  F7  |  F8  |      |                              |      | Shift| Ctrl |  Alt |  GUI |        |
- * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |        |  F1  |  F2  |  F3  |  F4  |      |      |      |  |      |      |      |      |      |      |      |        |
- * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |      |      |      |      |      |  |      |      |      |      |      |
- *                        |      |      |      |      |      |  |      |      |      |      |      |
- *                        `----------------------------------'  `----------------------------------'
+/* 
+ * Layer: FUNCTION
  */
     [_FUNCTION] = LAYOUT(
-      _______,  KC_F9 ,  KC_F10,  KC_F11,  KC_F12, _______,                                     _______, _______, _______, _______, _______, _______,
-      _______,  KC_F5 ,  KC_F6 ,  KC_F7 ,  KC_F8 , _______,                                     _______, KC_RSFT, KC_RCTL, KC_LALT, KC_RGUI, _______,
-      _______,  KC_F1 ,  KC_F2 ,  KC_F3 ,  KC_F4 , _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-                                 _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
+        _______, KC_F12 ,  KC_F7 ,  KC_F8 ,  KC_F9 , _______,                                             _______, _______, _______, _______, _______, _______,
+        _______, KC_F11 ,  KC_F4 ,  KC_F5 ,  KC_F6 , _______,                                             _______, KC_RSFT, KC_RCTL, KC_LALT, KC_RGUI, _______,
+        _______, KC_F10 ,  KC_F1 ,  KC_F2 ,  KC_F3 , _______, _______, _______,         _______, _______, _______, _______, _______, _______, _______, _______,
+                                   _______, _______, _______, _______, _______,         _______, _______, _______, _______, _______
     ),
 
-/*
- * Adjust Layer: Default layer settings, RGB
- *
- * ,-------------------------------------------.                              ,-------------------------------------------.
- * |        |      |      |QWERTY|      |      |                              |      |      |      |      |      |        |
- * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
- * |        |      |      |Dvorak|      |      |                              | TOG  | SAI  | HUI  | VAI  | MOD  |        |
- * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |        |      |      |Colmak|      |      |      |      |  |      |      |      | SAD  | HUD  | VAD  | RMOD |        |
- * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |      |      |      |      |      |  |      |      |      |      |      |
- *                        |      |      |      |      |      |  |      |      |      |      |      |
- *                        `----------------------------------'  `----------------------------------'
+/* 
+ * Layer: BUTTON
  */
-    [_ADJUST] = LAYOUT(
-      _______, _______, _______, QWERTY , _______, _______,                                    _______, _______, _______, _______,  _______, _______,
-      _______, _______, _______, DVORAK , _______, _______,                                    RM_TOGG, RM_SATU, RM_HUEU, RM_VALU,  RM_NEXT, _______,
-      _______, _______, _______, COLEMAK, _______, _______,_______, _______, _______, _______, _______, RM_SATD, RM_HUED, RM_VALD, RM_PREV,  _______,
-                                 _______, _______, _______,_______, _______, _______, _______, _______, _______, _______
+    [_BUTTON] = LAYOUT(
+        _______, KC_UNDO, KC_CUT , KC_COPY, KC_PSTE, KC_AGIN,                                    KC_AGIN, KC_PSTE, KC_COPY, KC_CUT , KC_UNDO, _______,
+        _______, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, _______,                                    _______, KC_RSFT, KC_RCTL, KC_RALT, KC_RGUI, _______, 
+        _______, KC_UNDO, KC_CUT , KC_COPY, KC_PSTE, KC_AGIN, _______, _______,         _______, _______, KC_AGIN, KC_PSTE, KC_COPY, KC_CUT , KC_UNDO, _______, 
+                                   _______, _______, MS_BTN3, MS_BTN1, MS_BTN2,         MS_BTN2, MS_BTN1, MS_BTN3, _______, _______
     ),
 
 // /*
@@ -215,6 +201,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
 //     ),
 };
+// clang-format on
 
 /* The default OLED and rotary encoder code can be found at the bottom of qmk_firmware/keyboards/splitkb/kyria/rev1/rev1.c
  * These default settings can be overriden by your own settings in your keymap.c
@@ -222,7 +209,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * DO NOT edit the rev1.c file; instead override the weakly defined default functions by your own.
  */
 
-/* DELETE THIS LINE TO UNCOMMENT (1/2)
 #ifdef OLED_ENABLE
 oled_rotation_t oled_init_user(oled_rotation_t rotation) { return OLED_ROTATION_180; }
 
@@ -237,31 +223,34 @@ bool oled_task_user(void) {
         // clang-format on
 
         oled_write_P(qmk_logo, false);
-        oled_write_P(PSTR("Kyria rev1.0\n\n"), false);
+        oled_write_P(PSTR("Kyria rev3.0\n\n"), false);
 
         // Host Keyboard Layer Status
         oled_write_P(PSTR("Layer: "), false);
         switch (get_highest_layer(layer_state|default_layer_state)) {
-            case _QWERTY:
-                oled_write_P(PSTR("QWERTY\n"), false);
+            case _BASE:
+                oled_write_P(PSTR("Base\n"), false);
                 break;
-            case _DVORAK:
-                oled_write_P(PSTR("Dvorak\n"), false);
+            case _MEDIA:
+                oled_write_P(PSTR("Media\n"), false);
                 break;
-            case _COLEMAK_DH:
-                oled_write_P(PSTR("Colemak-DH\n"), false);
+            case _NAVIGATION:
+                oled_write_P(PSTR("Navigation"), false);
                 break;
-            case _NAV:
-                oled_write_P(PSTR("Nav\n"), false);
+            case _MOUSE:
+                oled_write_P(PSTR("Mouse\n"), false);
                 break;
-            case _SYM:
-                oled_write_P(PSTR("Sym\n"), false);
+            case _NUMPAD:
+                oled_write_P(PSTR("Numpad\n"), false);
+                break;
+            case _SYMBOL:
+                oled_write_P(PSTR("Symbol\n"), false);
                 break;
             case _FUNCTION:
                 oled_write_P(PSTR("Function\n"), false);
                 break;
-            case _ADJUST:
-                oled_write_P(PSTR("Adjust\n"), false);
+            case _BUTTON:
+                oled_write_P(PSTR("Button\n"), false);
                 break;
             default:
                 oled_write_P(PSTR("Undefined\n"), false);
@@ -312,4 +301,3 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
     return false;
 }
 #endif
-DELETE THIS LINE TO UNCOMMENT (2/2) */

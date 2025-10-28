@@ -35,3 +35,4 @@
 #    endif
 #endif
 
+#define MOUSEKEY_MAX_SPEED 2
