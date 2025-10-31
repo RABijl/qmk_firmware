@@ -36,3 +36,7 @@
 #endif
 
 #define MOUSEKEY_MAX_SPEED 2
+
+// Disable power led and use it for caps lock instead.
+#define LED_CAPS_LOCK_PIN 24
+#define LED_PIN_ON_STATE 0
