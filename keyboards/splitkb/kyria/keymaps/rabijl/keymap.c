@@ -15,6 +15,7 @@
  */
 #include QMK_KEYBOARD_H
 #include "graphics/samurai_oni.h"
+#include "oled_utils.h"
 
 // do not fallback to previous layer
 #undef _______
@@ -212,18 +213,52 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 #ifdef OLED_ENABLE
 
-void oled_write_offset_raw(const char *data, uint16_t width, uint16_t height, uint8_t offset_x, uint8_t offset_y) {
-    uint16_t size = width * height;
-    for(uint16_t i = 0; i < size; i += width){
-        oled_set_cursor(offset_x, offset_y);
-        offset_y++;
-        oled_write_raw(&data[i], width);
-    }
+// void oled_write_offset_raw(const char *data, uint16_t width, uint16_t height, uint8_t offset_x, uint8_t offset_y) {
+//     uint16_t size = width * height;
+//     for(uint16_t i = 0; i < size; i += width){
+//         oled_set_cursor(offset_x, offset_y);
+//         offset_y++;
+//         oled_write_raw(&data[i], width);
+//     }
+// }
+
+static uint32_t oled_timer;
+oled_rotation_t oled_init_user(oled_rotation_t rotation) { 
+    oled_timer = timer_read32();
+    return OLED_ROTATION_180; 
 }
 
-oled_rotation_t oled_init_user(oled_rotation_t rotation) { return OLED_ROTATION_180; }
-
+// static bool flip = false;
+// static bool flop = false;
+// static uint8_t scroll_pos = 0;
 bool oled_task_user(void) {   
+    // if (timer_elapsed32(oled_timer) > 3000) {
+    //     flop = !flop;
+    //     if(flop) {
+    //         return false;
+    //     }
+    //     oled_scroll_off();
+    //     oled_scroll_set_area(scroll_pos, scroll_pos + 1);
+    //     if(flip) {
+    //         oled_scroll_right();
+    //     }else {
+    //         // oled_scroll_left();
+    //         oled_scroll_right();
+    //     }
+    //     flip = !flip;
+    //     scroll_pos += 1;
+    //     scroll_pos = scroll_pos >= 7? 0: scroll_pos;
+    //     // for(char i = 0; i<8; i++){
+    //     //     oled_scroll_set_area(i,i);
+    //     //     if(i % 2 == 0){
+    //     //         oled_scroll_right();
+    //     //     }else{
+    //     //         oled_scroll_left();
+    //     //     }
+    //     // }
+    //     // oled_scroll_right();
+    //     return false;
+    // }
     oled_write_offset_raw(samurai_oni, GRAPHIC_WIDTH, GRAPHIC_HEIGHT, 0, 0);
     
     oled_set_cursor(GRAPHIC_CURSOR_OFFSET, 0);
@@ -268,6 +303,7 @@ bool oled_task_user(void) {
         // oled_write_P(led_usb_state.num_lock    ? PSTR("NUMLCK \n") : PSTR("       \n"), false);
         oled_write_P(led_usb_state.caps_lock   ? PSTR("CAPLCK \n") : PSTR("       \n"), false);
         // oled_write_P(led_usb_state.scroll_lock ? PSTR("SCRLCK \n") : PSTR("       \n"), false);
+        oled_scanline_render(2, 0, 64);
     }
     return false;
 }
